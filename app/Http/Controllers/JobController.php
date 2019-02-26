@@ -18,6 +18,11 @@ class JobController extends Controller
         $this->user = $user;
     }
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function index(Request $request)
     {
         $keyword = $request->get('keyword');
@@ -46,6 +51,7 @@ class JobController extends Controller
         }
     }
 
+
     public function show($id)
     {
         $data = Job::find($id);
@@ -58,6 +64,13 @@ class JobController extends Controller
         return $data;
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     * Need Token
+     */
     public function store(Request $request)
     {
         $user = JWTAuth::toUser($request->header('authorization'));
@@ -78,9 +91,30 @@ class JobController extends Controller
         $job->skills_experience = $request->skills_experience;
         $job->love_working_here = $request->love_working_here;
         $job->user_id = $user->id;
-        $job->save();
-        return response()->json($job->id, 200);
+        $success = $job->save();
+        if ($success) {
+            return response()->json([
+                'success' => true,
+                'id' => $job->id
+
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, Job could not be create'
+            ], 500);
+        }
     }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     *
+     * Need Token
+     */
 
     public function update(Request $request, $id)
     {
@@ -106,8 +140,8 @@ class JobController extends Controller
         $job->skills_experience = $request->input('skills_experience');
         $job->love_working_here = $request->input('love_working_here');
         $job->updated_at = Carbon::now();
-        $update = $job->save();
-        if ($update) {
+        $success = $job->save();
+        if ($success) {
             return response()->json([
                 'success' => true,
                 'id' => $job->id
@@ -116,10 +150,17 @@ class JobController extends Controller
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Sorry, product could not be updated'
+                'message' => 'Sorry, Job could not be updated'
             ], 500);
         }
     }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int $id
+     * @return \Illuminate\Http\Response
+     */
 
     public function destroy(Request $request, $id)
     {
@@ -129,14 +170,12 @@ class JobController extends Controller
         if ($job->user_id != $user->id) {
             return response()->json('Permission denied', 403);
         }
-
         if (!$job) {
             return response()->json([
                 'success' => false,
                 'message' => 'Sorry, product with id ' . $id . ' cannot be found'
             ], 400);
         }
-
         if ($job->delete()) {
             return response()->json([
                 'success' => true
