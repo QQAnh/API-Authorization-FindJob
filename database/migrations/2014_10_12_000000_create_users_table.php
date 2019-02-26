@@ -17,7 +17,7 @@ class CreateUsersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('avatar')->default('http://www.jumppark.lv/wp-content/uploads/2018/06/default-avatar-250x250.png');
+            $table->longText('avatar');
             $table->integer('gender');
             $table->date('birthday')->nullable();
             $table->string('role')->default('customer');

@@ -50,6 +50,31 @@ class JobController extends Controller
             ];
         }
     }
+    public function create(Request $request)
+    {
+        try {
+            $user = JWTAuth::toUser($request->header('authorization'));
+            $data = $request->selection1;
+            foreach ($data as $dataJson) {
+                $data = new Job();
+                $data->title = $dataJson['title'];
+                $data->job_url = $dataJson['job_url'];
+                $data->location = $dataJson['location'];
+                $data->job_description = $dataJson['job_description'];
+                $data->skills_experience = $dataJson['skills_experience'];
+                $data->love_working_here = $dataJson['love_working_here'];
+                $data->user_id = $user->id;
+                $data->created_at = Carbon::now();
+                $data->updated_at = Carbon::now();
+                $data->save();
+
+            }
+            $result = Job::all();
+            return response()->json($result, 200);
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
+    }
 
 
     public function show($id)
@@ -64,12 +89,12 @@ class JobController extends Controller
         return $data;
     }
 
-    public function getJobByUser()
+
+    public function getJobByUser(Request $request)
     {
-        return $this->user
-            ->jobs()
-            ->get(['title', 'location', 'job_url'])
-            ->toArray();
+        $user = JWTAuth::toUser($request->header('authorization'));
+        $data = Job::Where('user_id' , '=' , $user->id)->paginate(10);
+        return $data;
     }
 
     /**
