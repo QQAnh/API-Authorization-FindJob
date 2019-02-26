@@ -22,9 +22,10 @@ Route::post('auth/login', 'UserController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user-info', 'UserController@getUserInfo');
     Route::put('user', 'UserController@update');
-    Route::get('job', 'JobController@index');
     Route::get('job/{id}', 'JobController@show');
     Route::post('job', 'JobController@store');
     Route::put('job/{id}', 'JobController@update');
     Route::delete('job/{id}', 'JobController@destroy');
 });
+Route::get('job', 'JobController@index');
+
