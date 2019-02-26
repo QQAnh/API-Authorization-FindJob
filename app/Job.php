@@ -12,6 +12,7 @@ class Job extends Model
     protected $table = 'jobs';
     protected $dates = ['deleted_at'];
     protected $fillable = [
-        'title', 'job_url', 'job_description','location','user_id'
+        'title', 'job_url', 'job_description', 'location', 'user_id'
     ];
 }
+

@@ -64,6 +64,14 @@ class JobController extends Controller
         return $data;
     }
 
+    public function getJobByUser()
+    {
+        return $this->user
+            ->jobs()
+            ->get(['title', 'location', 'job_url'])
+            ->toArray();
+    }
+
     /**
      * Store a newly created resource in storage.
      *

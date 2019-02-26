@@ -17,8 +17,8 @@ use Illuminate\Http\Request;
 //    return $request->user();
 //});
 
-Route::post('auth/register', 'UserController@register');
-Route::post('auth/login', 'UserController@login');
+Route::post('/auth/register', 'UserController@register');
+Route::post('/auth/login', 'UserController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user-info', 'UserController@getUserInfo');
     Route::put('user', 'UserController@update');
@@ -26,6 +26,8 @@ Route::group(['middleware' => 'jwt.auth'], function () {
     Route::post('job', 'JobController@store');
     Route::put('job/{id}', 'JobController@update');
     Route::delete('job/{id}', 'JobController@destroy');
+    Route::get('job/user', 'JobController@getJobByUser');
 });
 Route::get('job', 'JobController@index');
+
 
