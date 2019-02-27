@@ -22,15 +22,14 @@ Route::post('/auth/login', 'UserController@login');
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::get('user-info', 'UserController@getUserInfo');
     Route::put('user', 'UserController@update');
-
+    Route::put('job/{id}', 'JobController@update');
+    Route::delete('job/{id}', 'JobController@destroy');
+    Route::post('job/DB/test', 'JobController@create');
+    Route::post('job', 'JobController@store');
 
 });
 Route::get('job/user', 'JobController@getJobByUser');
 Route::get('job/{id}', 'JobController@show');
 Route::get('job', 'JobController@index');
-Route::put('job/{id}', 'JobController@update');
-Route::delete('job/{id}', 'JobController@destroy');
-Route::post('job/DB/test', 'JobController@create');
-Route::post('job', 'JobController@store');
 
 
