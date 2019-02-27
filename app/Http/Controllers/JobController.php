@@ -164,7 +164,7 @@ class JobController extends Controller
             'location' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json(['errors'=>$validator->errors()], 400);
         }
         $job->title = $request->input('title');
         $job->job_url = $request->input('job_url');
