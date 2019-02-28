@@ -27,18 +27,11 @@ class JobController extends Controller
     {
         $keyword = $request->get('keyword');
         $location = $request->get('location');
-        $data = Job::select('jobs.*');
-        if ($keyword) {
-            $data = $data = Job::where('jobs.title', 'like', '%' . $keyword . '%')
-                ->orWhere('jobs.job_description', 'like', '%' . $keyword . '%')
-                ->orWhere('jobs.skills_experience', 'like', '%' . $keyword . '%')
-                ->orWhere('jobs.love_working_here', 'like', '%' . $keyword . '%')
-                ->select('jobs.*');
-        }
-        if ($location) {
-            $data = $data = Job::where('jobs.location', 'like', '%' . $location . '%')
-                ->select('jobs.*');
-        }
+        $data = Job::where([
+            ['jobs.location', 'like', '%' . $location . '%'],
+            ['jobs.title', 'like', '%' . $keyword . '%']
+        ])
+            ->select('jobs.*');
         $data = $data->paginate(10);
         if (count($data) == 0) {
             return response()->json(['error_message' => "No item found"], 200);
@@ -106,7 +99,7 @@ class JobController extends Controller
      */
     public function store(Request $request)
     {
-        $user = JWTAuth::toUser($request->header('authorization'));
+//        $user = JWTAuth::toUser($request->header('authorization'));
         $validator = Validator::make($request->all(), [
             'title' => 'required|max:255',
             'job_url' => 'required',
@@ -114,7 +107,9 @@ class JobController extends Controller
             'location' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 400);
+            return response()->json([
+                'message' => false,
+                'errors'=>$validator->errors()], 400);
         }
         $job = new Job();
         $job->title = $request->title;
@@ -123,7 +118,7 @@ class JobController extends Controller
         $job->location = $request->location;
         $job->skills_experience = $request->skills_experience;
         $job->love_working_here = $request->love_working_here;
-        $job->user_id = $user->id;
+        $job->user_id = 1;
         $success = $job->save();
         if ($success) {
             return response()->json([
@@ -153,10 +148,10 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-        $user = JWTAuth::toUser($request->header('authorization'));
-        if ($job->user_id != $user->id) {
-            return response()->json('Permission denied', 403);
-        }
+//        $user = JWTAuth::toUser($request->header('authorization'));
+//        if ($job->user_id != $user->id) {
+//            return response()->json('Permission denied', 403);
+//        }
         $validator = Validator::make($request->all(), [
             'title' => 'required|max:255',
             'job_url' => 'required',
@@ -164,7 +159,9 @@ class JobController extends Controller
             'location' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(['errors'=>$validator->errors()], 400);
+            return response()->json([
+                'message' => false,
+                'errors'=>$validator->errors()], 400);
         }
         $job->title = $request->input('title');
         $job->job_url = $request->input('job_url');
@@ -199,10 +196,10 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-        $user = JWTAuth::toUser($request->header('authorization'));
-        if ($job->user_id != $user->id) {
-            return response()->json('Permission denied', 403);
-        }
+//        $user = JWTAuth::toUser($request->header('authorization'));
+//        if ($job->user_id != $user->id) {
+//            return response()->json('Permission denied', 403);
+//        }
         if (!$job) {
             return response()->json([
                 'success' => false,
