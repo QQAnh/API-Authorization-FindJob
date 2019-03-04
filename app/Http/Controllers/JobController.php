@@ -28,14 +28,20 @@ class JobController extends Controller
 
         $keyword = $request->get('keyword');
         $location = $request->get('location');
+        $category =$request->get('category');
         $data = Job::where([
             ['jobs.location', 'like', '%' . $location . '%'],
-            ['jobs.title', 'like', '%' . $keyword . '%']
+            ['jobs.title', 'like', '%' . $keyword . '%'],
+            ['jobs.job_type', 'like', '%' . $category . '%']
+
         ])
             ->select('jobs.*');
-        $data = $data->paginate(10);
+        $data = $data->paginate(2);
         if (count($data) == 0) {
-            return response()->json(['error_message' => "No item found"], 200);
+            return response()->json([
+                'location'=>$location,
+                'keyword'=>$keyword,
+                'error_message' => "No item found"], 200);
         } else {
             $data->appends($request->query());
             return [
@@ -57,6 +63,9 @@ class JobController extends Controller
                 $data->job_url = $dataJson['job_url'];
                 $data->location = $dataJson['location'];
                 $data->job_description = $dataJson['job_description'];
+                $data->company = $dataJson['company'];
+                $data->salary = $dataJson['salary'];
+                $data->job_type = $dataJson['job_type'];
                 $data->skills_experience = $dataJson['skills_experience'];
                 $data->love_working_here = $dataJson['love_working_here'];
                 $data->user_id = 1;
@@ -119,6 +128,9 @@ class JobController extends Controller
         $job->job_url = $request->job_url;
         $job->job_description = $request->job_description;
         $job->location = $request->location;
+        $job->company = $request->company;
+        $job->salary = $request->salary;
+        $job->job_type = $request->job_type;
         $job->skills_experience = $request->skills_experience;
         $job->love_working_here = $request->love_working_here;
         $job->user_id = 1;
@@ -169,6 +181,9 @@ class JobController extends Controller
         $job->title = $request->input('title');
         $job->job_url = $request->input('job_url');
         $job->location = $request->input('location');
+        $job->company = $request->input('company');
+        $job->salary = $request->input('salary');
+        $job->job_type = $request->input('job_type');
         $job->job_description = $request->input('job_description');
         $job->skills_experience = $request->input('skills_experience');
         $job->love_working_here = $request->input('love_working_here');
