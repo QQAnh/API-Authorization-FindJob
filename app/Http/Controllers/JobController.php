@@ -25,6 +25,7 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
+
         $keyword = $request->get('keyword');
         $location = $request->get('location');
         $data = Job::where([
@@ -39,6 +40,8 @@ class JobController extends Controller
             $data->appends($request->query());
             return [
                 'data' => $data,
+                'location'=>$location,
+                'keyword'=>$keyword,
                 'paginate_view' => View::make('pagination', compact('data'))->render()
             ];
         }
@@ -46,7 +49,7 @@ class JobController extends Controller
     public function create(Request $request)
     {
         try {
-            $user = JWTAuth::toUser($request->header('authorization'));
+//            $user = JWTAuth::toUser($request->header('authorization'));
             $data = $request->selection1;
             foreach ($data as $dataJson) {
                 $data = new Job();
@@ -56,7 +59,7 @@ class JobController extends Controller
                 $data->job_description = $dataJson['job_description'];
                 $data->skills_experience = $dataJson['skills_experience'];
                 $data->love_working_here = $dataJson['love_working_here'];
-                $data->user_id = $user->id;
+                $data->user_id = 1;
                 $data->created_at = Carbon::now();
                 $data->updated_at = Carbon::now();
                 $data->save();

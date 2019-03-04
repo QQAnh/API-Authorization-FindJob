@@ -59,23 +59,25 @@ class UserController extends Controller
         $token = null;
         try {
             if (!$token = JWTAuth::attempt($credentials)) {
-                return response()->json(['invalid_email_or_password'], 422);
+                return response()->json(['Invalid email or password'], 422);
             }
         } catch (JWTAuthException $e) {
             return response()->json(['failed_to_create_token'], 500);
         }
-        return response()->json(compact('token'));
+        return response()->json(["success"=> true,
+            "token"=>$token]);
     }
 
     public function getUserInfo(Request $request)
     {
-        $user = JWTAuth::toUser($request->token);
-        return response()->json(['data' => $user]);
+        $user = JWTAuth::toUser($request->header('authorization'));
+        return response()->json( $user);
     }
 
 
     public function update(Request $request)
     {
+        $token = null;
         $user = JWTAuth::toUser($request->header('authorization'));
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:255',
@@ -96,10 +98,12 @@ class UserController extends Controller
         $data->updated_at = Carbon::now();
         $success = $data->save();
         if ($success) {
+            $credentials = $request->only('email', 'password');
+             $token =JWTAuth::attempt($credentials);
             return response()->json([
                 'success' => true,
-                'id' => $data->id
-
+                'id' => $data->id,
+                'token'=>$token
             ]);
         } else {
             return response()->json([
