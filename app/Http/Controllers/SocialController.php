@@ -102,6 +102,7 @@ class SocialController extends Controller
             if ($user) {
                 $token = JWTAuth::fromUser($user);
 
+
                 return response()->json(["success" => true,
                     "token" => $token]);
             }
@@ -117,10 +118,12 @@ class SocialController extends Controller
             $data->avatar = $payload['picture'];
             $success = $data->save();
             $token = JWTAuth::fromUser($data);
+            $new_token = JWTAuth::refresh($token);
+
             if ($success) {
                 return response()->json([
                     'success' => true,
-                    'token' => $token
+                    'token' => $new_token
 
                 ]);
             } else {
