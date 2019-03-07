@@ -13,6 +13,10 @@ return [
     | to have a conventional place to find your various credentials.
     |
     */
+    'facebook' => [
+        'app_id' => '2545109012229313',
+        'app_secret' => 'a7453a2c1e4b143e9602ca7a942039a8',
+    ],
 
     'mailgun' => [
         'domain' => env('MAILGUN_DOMAIN'),
