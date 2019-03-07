@@ -12,6 +12,12 @@ use JWTAuth;
 
 class SocialController extends Controller
 {
+
+    /**
+     * Login with facebook
+     *
+     * return token for user
+     */
     public function facebook(Request $request)
     {
         $facebook = $request->only('access_token');
@@ -44,7 +50,7 @@ class SocialController extends Controller
             $data = new User();
             $data->name = $profile['name'];
             $data->email = $profile['email'];
-            if (User::where('users.email', 'like', '%' . $profile['email'] . '%')){
+            if (User::where('users.email', 'like', '%' . $profile['email'] . '%')->first()){
                 return response()->json(["success" => false,
                     "message" => "This user's email has been registered"]);
             }
@@ -63,6 +69,64 @@ class SocialController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Sorry, User could not be updated'
+                ], 500);
+            }
+        } catch (Exception $exception) {
+            return response()->json($exception->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Login with google
+     *
+     * @return token
+     */
+    public function google(Request $request)
+    {
+        $idToken = $request->get('id_token');
+        if (!$idToken) {
+            return response()->json(["success" => false,
+                "message" => "User login with google failed"]);
+        }
+        try {
+            $client = new \Google_Client(['client_id' => config('services.google.client_id')]);
+            $payload = $client->verifyIdToken($idToken);
+            if (!$payload) {
+                return response()->json(["success" => false,
+                    "message" => "User login with google failed"]);
+            }
+            $user = User::where('users.email', 'like', '%' . $payload['email'] . '%')
+                ->where('users.provided_id', 'like', '%' . $payload['sub'] . '%')
+                ->where('users.social', 'like', '%' . 'google' . '%')
+                ->first();
+            if ($user) {
+                $token = JWTAuth::fromUser($user);
+
+                return response()->json(["success" => true,
+                    "token" => $token]);
+            }
+            $data = new User();
+            $data->name = $payload['name'];
+            $data->email = $payload['email'];
+            if (User::where('users.email', 'like', '%' . $payload['email'] . '%')->first()){
+                return response()->json(["success" => false,
+                    "message" => "This user's email has been registered"]);
+            }
+            $data->provided_id = $payload['sub'];
+            $data->social = 'google';
+            $data->avatar = $payload['picture'];
+            $success = $data->save();
+            $token = JWTAuth::fromUser($data);
+            if ($success) {
+                return response()->json([
+                    'success' => true,
+                    'token' => $token
+
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Sorry, User could not be create'
                 ], 500);
             }
         } catch (Exception $exception) {

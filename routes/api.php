@@ -35,5 +35,7 @@ Route::put('job/{id}', 'JobController@update');
 Route::post('job/DB/test', 'JobController@create');
 
 Route::post('user/login/facebook', 'SocialController@facebook');
+Route::post('user/login/google', 'SocialController@google');
+
 
 
