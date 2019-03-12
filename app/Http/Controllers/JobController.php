@@ -36,7 +36,7 @@ class JobController extends Controller
 
         ])
             ->select('jobs.*');
-        $data = $data->paginate(2);
+        $data = $data->paginate(10);
         if (count($data) == 0) {
             return response()->json([
                 'location'=>$location,
@@ -46,6 +46,7 @@ class JobController extends Controller
             $data->appends($request->query());
             return [
                 'data' => $data,
+                'job_type'=>$category,
                 'location'=>$location,
                 'keyword'=>$keyword,
                 'paginate_view' => View::make('pagination', compact('data'))->render()
@@ -55,7 +56,7 @@ class JobController extends Controller
     public function create(Request $request)
     {
         try {
-//            $user = JWTAuth::toUser($request->header('authorization'));
+            $user = JWTAuth::toUser($request->header('authorization'));
             $data = $request->selection1;
             foreach ($data as $dataJson) {
                 $data = new Job();
@@ -68,7 +69,7 @@ class JobController extends Controller
                 $data->job_type = $dataJson['job_type'];
                 $data->skills_experience = $dataJson['skills_experience'];
                 $data->love_working_here = $dataJson['love_working_here'];
-                $data->user_id = 1;
+                $data->user_id = $user->id;
                 $data->created_at = Carbon::now();
                 $data->updated_at = Carbon::now();
                 $data->save();
@@ -111,7 +112,7 @@ class JobController extends Controller
      */
     public function store(Request $request)
     {
-//        $user = JWTAuth::toUser($request->header('authorization'));
+        $user = JWTAuth::toUser($request->header('authorization'));
         $validator = Validator::make($request->all(), [
             'title' => 'required|max:255',
             'job_url' => 'required',
@@ -133,7 +134,7 @@ class JobController extends Controller
         $job->job_type = $request->job_type;
         $job->skills_experience = $request->skills_experience;
         $job->love_working_here = $request->love_working_here;
-        $job->user_id = 1;
+        $job->user_id = $user->id;
         $success = $job->save();
         if ($success) {
             return response()->json([
@@ -163,10 +164,10 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-//        $user = JWTAuth::toUser($request->header('authorization'));
-//        if ($job->user_id != $user->id) {
-//            return response()->json('Permission denied', 403);
-//        }
+        $user = JWTAuth::toUser($request->header('authorization'));
+        if ($job->user_id != $user->id) {
+            return response()->json('Permission denied', 403);
+        }
         $validator = Validator::make($request->all(), [
             'title' => 'required|max:255',
             'job_url' => 'required',
@@ -214,10 +215,10 @@ class JobController extends Controller
     {
         $job = Job::find($id);
 
-//        $user = JWTAuth::toUser($request->header('authorization'));
-//        if ($job->user_id != $user->id) {
-//            return response()->json('Permission denied', 403);
-//        }
+        $user = JWTAuth::toUser($request->header('authorization'));
+        if ($job->user_id != $user->id) {
+            return response()->json('Permission denied', 403);
+        }
         if (!$job) {
             return response()->json([
                 'success' => false,
