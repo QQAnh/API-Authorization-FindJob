@@ -46,9 +46,9 @@ class scrape extends Command
             $linkJob = $crawler->filter('h2.title a')->each(function ($node) {
                 return $node->attr('href');
             });
-            // sleep(10);
+// sleep(10);
             foreach ($linkJob as $link) {
-                // echo $link."\n";
+// echo $link."\n";
                 $z = 'https://itviec.com' . $link;
                 self::scapeJob($z);
             }
@@ -58,7 +58,7 @@ class scrape extends Command
     {
         $crawler = Goutte::request('GET', $url);
 
-        $title =  $crawler->filter('h1.job_title')->each(function ($node) {
+        $title = $crawler->filter('h1.job_title')->each(function ($node) {
             return $node->text();
         });
 
@@ -98,7 +98,7 @@ class scrape extends Command
             $company = '';
         }
 
-        $job_description = $crawler->filter('div.job_description')->each(function ($node) {
+        $job_description = $crawler->filter('div.job_description div.description')->each(function ($node) {
             return $node->text();
         });
 
@@ -108,7 +108,7 @@ class scrape extends Command
             $job_description = '';
         }
 
-        $skills_experience = $crawler->filter('div.skills_experience')->each(function ($node) {
+        $skills_experience = $crawler->filter('div.skills_experience div.experience')->each(function ($node) {
             return $node->text();
         });
 
@@ -118,7 +118,7 @@ class scrape extends Command
             $skills_experience = '';
         }
 
-        $love_working_here = $crawler->filter('div.love_working_here')->each(function ($node) {
+        $love_working_here = $crawler->filter('div.love_working_here div.culture_description')->each(function ($node) {
             return $node->text();
         });
 
